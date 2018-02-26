@@ -7,7 +7,7 @@ public class DBConnection {
     public void connectDataBase() {
         try {
             Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
-            conn = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Chris/Desktop/SpelRvi_Access.accdb");
+            conn = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Chris/Desktop/SpelRviKomplettering.accdb");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -21,8 +21,8 @@ public class DBConnection {
             Statement st = conn.createStatement();
             ResultSet rs;
             int coverageID = 0;
-            int idCounter = 0;
-            int saldo_id = 0;
+            int idCounter = 1;
+            int saldoID = 0;
             query = "SELECT * FROM bevakare";
             rs = st.executeQuery(query);
             while (rs.next()) {
@@ -32,9 +32,9 @@ public class DBConnection {
                 }
                 idCounter++;
             }
+            st.close();
             if (!isAlreadyRegistered) {
                 coverageID = idCounter;
-                st.close();
                 query = "INSERT INTO Bevakare (bevakar_id, emejlAdress) VALUES (?, ?)";
                 prepStatement = conn.prepareStatement(query);
                 prepStatement.setInt(1, coverageID);
@@ -56,17 +56,17 @@ public class DBConnection {
             prepStatement.setString(4, cityParam);
             rs = prepStatement.executeQuery();
             while (rs.next()) {
-                saldo_id = rs.getInt(1);
+                saldoID = rs.getInt(1);
             }
-            prepStatement.close();
             query = "INSERT INTO Bevakning (saldo_id, bevakar_id) VALUES(?, ?)";
             prepStatement = conn.prepareStatement(query);
-            prepStatement.setInt(1, saldo_id);
+            prepStatement.setInt(1, saldoID);
             prepStatement.setInt(2, coverageID);
             prepStatement.executeUpdate();
             prepStatement.close();
             return "Success! Thank you for visiting Spel RVI " + emailParam;
-        } catch (Exception e) {return "you have already asked to be informed about this game!";}
+        } catch (Exception e) {
+        return "you have already asked to be informed about this game!";}
     }
 
     public ArrayList<ArrayList<String>> showStoreStockForGivenProduct(String titleParam, String platformParam) {
@@ -121,8 +121,8 @@ public class DBConnection {
                 String query = "SELECT DISTINCT SpelTitel.speltitel\n" +
                         "FROM Plattform " +
                         "INNER JOIN ((SpelTitel INNER JOIN " +
-                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTypFN)" +
-                        "ON SpelTitel.titel_id = GenreTabell.titel_idFN) INNER JOIN Produkt " +
+                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTyp)" +
+                        "ON SpelTitel.titel_id = GenreTabell.titel_id) INNER JOIN Produkt " +
                         "ON SpelTitel.titel_id = Produkt.titel_id) ON Plattform.Namn = Produkt.plattform\n" +
                         "WHERE gerneTyp = ?;";
                 prepStatement = conn.prepareStatement(query);
@@ -138,8 +138,8 @@ public class DBConnection {
                 String query = "SELECT DISTINCT SpelTitel.speltitel\n" +
                         "FROM Plattform " +
                         "INNER JOIN ((SpelTitel INNER JOIN " +
-                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTypFN) " +
-                        "ON SpelTitel.titel_id = GenreTabell.titel_idFN) INNER JOIN Produkt " +
+                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTyp) " +
+                        "ON SpelTitel.titel_id = GenreTabell.titel_id) INNER JOIN Produkt " +
                         "ON SpelTitel.titel_id = Produkt.titel_id) ON Plattform.Namn = Produkt.plattform\n" +
                         "WHERE Plattform.namn = ?;";
                 prepStatement = conn.prepareStatement(query);
@@ -171,8 +171,8 @@ public class DBConnection {
                 String query = "SELECT DISTINCT SpelTitel.speltitel\n" +
                         "FROM Plattform " +
                         "INNER JOIN ((SpelTitel INNER JOIN " +
-                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTypFN) " +
-                        "ON SpelTitel.titel_id = GenreTabell.titel_idFN) INNER JOIN Produkt ON SpelTitel.titel_id = Produkt.titel_id) " +
+                        "(Genre INNER JOIN GenreTabell ON Genre.gerneTyp = GenreTabell.genreTyp) " +
+                        "ON SpelTitel.titel_id = GenreTabell.titel_id) INNER JOIN Produkt ON SpelTitel.titel_id = Produkt.titel_id) " +
                         "ON Plattform.Namn = Produkt.plattform\n" +
                         "WHERE gerneTyp = ? AND plattform = ?";
                 prepStatement = conn.prepareStatement(query);
